@@ -25,7 +25,8 @@
       "@pipes/*": ["src/pipes/*"],
       "@enums/*": ["src/enums/*"],
       "@modules/*": ["src/modules/*"],
-      "@interceptors/*": ["src/interceptors/*"]
+      "@interceptors/*": ["src/interceptors/*"],
+      "@interfaces/*": ["src/interfaces/*"]
     }
   }
 }

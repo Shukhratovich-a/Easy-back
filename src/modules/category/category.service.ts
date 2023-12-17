@@ -27,10 +27,12 @@ export class CategoryService {
   ) {}
 
   // FIND
-  async findAll(language?: LanguageEnum) {
+  async findAll(language?: LanguageEnum, page?: number, limit?: number) {
     const categories = await this.categoryRepository.find({
       relations: { contents: true, subcategories: { products: true } },
       where: { contents: { language } },
+      take: limit,
+      skip: (page - 1) * limit || 0,
     });
     if (!categories) return [];
 
@@ -41,7 +43,7 @@ export class CategoryService {
     return newCategories;
   }
 
-  async findAllWithSubCategories(language?: LanguageEnum) {
+  async findAllWithSubCategories(language?: LanguageEnum, page?: number, limit?: number) {
     const categories = await this.categoryRepository
       .createQueryBuilder('categories')
       .innerJoinAndSelect('categories.contents', 'content', 'content.language = :language', { language })
@@ -49,6 +51,8 @@ export class CategoryService {
       .leftJoinAndSelect('subcategories.contents', 'subContent', 'subContent.language = :language', { language })
       .leftJoinAndSelect('subcategories.products', 'products')
       .leftJoinAndSelect('products.contents', 'productsContent', 'productsContent.language = :language', { language })
+      .take(limit || 10)
+      .skip((page - 1) * limit || 0)
       .getMany();
     if (!categories) return [];
 

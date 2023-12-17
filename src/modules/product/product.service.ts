@@ -28,9 +28,7 @@ export class ProductService {
     });
     if (!products) return [];
 
-    const newProducts: ProductDto[] = products.map((product) => {
-      return this.parseProducts(product);
-    });
+    const newProducts: ProductDto[] = products.map((product) => this.parseProducts(product));
 
     return newProducts;
   }
@@ -38,9 +36,7 @@ export class ProductService {
   async findAlias(alias: string, language: LanguageEnum) {
     const product = await this.productRepository.findOne({ where: { contents: { alias } } });
 
-    const content = await this.productContentRepository.findOne({
-      where: { product: { id: product.id }, language },
-    });
+    const content = await this.productContentRepository.findOne({ where: { product: { id: product.id }, language } });
 
     return { alias: content.alias };
   }
@@ -61,6 +57,22 @@ export class ProductService {
     const newProduct = this.parseProducts(product);
 
     return newProduct;
+  }
+
+  async findBySearch(search: string, language: LanguageEnum) {
+    const products = await this.productRepository
+      .createQueryBuilder('product')
+      .innerJoin('product.contents', 'content')
+      .innerJoinAndSelect('product.contents', 'contentLang', 'contentLang.language = :language', { language })
+      .leftJoinAndSelect('product.images', 'productImages')
+      .where('content.title like :search', { search: `%${search}%` })
+      .getMany();
+
+    if (!products) return null;
+
+    const newProducts: ProductDto[] = products.map((product) => this.parseProducts(product));
+
+    return newProducts;
   }
 
   // UPDATE

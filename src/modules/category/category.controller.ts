@@ -19,6 +19,7 @@ import { EnumValidationPipe } from '@pipes/EnumValidation.pipe';
 
 import { ResponseInterceptor } from '@interceptors/response.interceptor';
 
+import { IPagination } from '@interfaces/pagination.interface';
 import { LanguageEnum } from '@enums/language.enum';
 
 import { CategoryService } from './category.service';
@@ -36,17 +37,18 @@ export class CategoryController {
   @HttpCode(HttpStatus.OK)
   async getAll(
     @Query('language', new EnumValidationPipe(LanguageEnum, { defaultValue: LanguageEnum.RU })) language: LanguageEnum,
+    @Query() { page, limit }: IPagination,
   ) {
-    return await this.categoryService.findAll(language);
+    return await this.categoryService.findAll(language, page, limit);
   }
 
   @Get('with-subcategories')
   @HttpCode(HttpStatus.OK)
   async getWithSubcategories(
-    @Query('language', new EnumValidationPipe(LanguageEnum, { defaultValue: LanguageEnum.RU }))
-    language: LanguageEnum,
+    @Query('language', new EnumValidationPipe(LanguageEnum, { defaultValue: LanguageEnum.RU })) language: LanguageEnum,
+    @Query() { page, limit }: IPagination,
   ) {
-    return await this.categoryService.findAllWithSubCategories(language);
+    return await this.categoryService.findAllWithSubCategories(language, page, limit);
   }
 
   @Get('by-id/:categoryId')
@@ -70,7 +72,7 @@ export class CategoryController {
   // POST
   @Post('get-alias/:language')
   @HttpCode(HttpStatus.OK)
-  async getAliasByLang(
+  async getAliasByLanguage(
     @Param('language', new EnumValidationPipe(LanguageEnum, { required: true })) language: LanguageEnum,
     @Body('alias') alias: string,
   ) {

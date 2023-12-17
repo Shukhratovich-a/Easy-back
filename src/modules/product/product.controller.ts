@@ -1,12 +1,28 @@
-import { Controller, Get, Post, Put, Query, Param, Body, ParseIntPipe, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Query,
+  Param,
+  Body,
+  ParseIntPipe,
+  BadRequestException,
+  UseInterceptors,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 
 import { EnumValidationPipe } from '@pipes/EnumValidation.pipe';
+
+import { ResponseInterceptor } from '@/interceptors/response.interceptor';
 
 import { LanguageEnum } from '@enums/language.enum';
 
 import { ProductService } from './product.service';
 
 @Controller('product')
+@UseInterceptors(ResponseInterceptor)
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
@@ -20,7 +36,7 @@ export class ProductController {
 
   // POST
   @Post('get-alias/:language')
-  async getAliasByLang(
+  async getAliasByLanguage(
     @Param('language', new EnumValidationPipe(LanguageEnum, { required: true })) language: LanguageEnum,
     @Body('alias') alias: string,
   ) {
@@ -33,6 +49,15 @@ export class ProductController {
     @Body('alias') alias: string,
   ) {
     return this.productService.findByAlias(alias, language);
+  }
+
+  @Post('search/:language')
+  @HttpCode(HttpStatus.OK)
+  async getByText(
+    @Param('language', new EnumValidationPipe(LanguageEnum, { required: true })) language: LanguageEnum,
+    @Body('search') search: string,
+  ) {
+    return this.productService.findBySearch(search, language);
   }
 
   // PUT

@@ -73,7 +73,7 @@ export class SubcategoryController {
   // POST
   @Post('get-alias/:language')
   @HttpCode(HttpStatus.OK)
-  async getAliasByLang(
+  async getAliasByLanguage(
     @Param('language', new EnumValidationPipe(LanguageEnum, { required: true })) language: LanguageEnum,
     @Body('alias') alias: string,
   ) {
